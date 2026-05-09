@@ -31,12 +31,6 @@ body{
 h1{ color:#ff6fa8; }
 p{ color:#444; }
 
-img{
-  width:250px;
-  border-radius:15px;
-  margin:15px 0;
-}
-
 button{
   padding:10px 15px;
   margin:5px;
@@ -55,7 +49,6 @@ button{
   background:white;
   border:1px solid #ff6fa8;
   color:#ff6fa8;
-  transition:0.2s;
 }
 
 .message{
@@ -64,6 +57,22 @@ button{
   font-weight:bold;
 }
 
+/* GIF FIX */
+#gifContainer{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:15px 0;
+  min-height:240px;
+}
+
+#gif{
+  width:240px;
+  border-radius:15px;
+  display:none;
+}
+
+/* hearts */
 .hearts{
   position:absolute;
   top:0;
@@ -99,25 +108,25 @@ button{
 
 <script>
 let scene = 1;
-let noGif = "";
-let noMessage = "";
+
+let noActive = false;
 
 const scenes = {
   1:{
     title:"Hey Baby... I'm Sorry 💖",
-    text:"I know I hurt your feelings and disrespected you. That was never my intention.",
+    text:"I know I hurt your feelings and disrespected you. That was never my intention. You deserve all the love, attention, and care in the world.",
     gif:"https://media.giphy.com/media/Lfi2G7BzY15333JtK1/giphy.gif",
     btn:"Next 💕"
   },
   2:{
     title:"You Trusted Me 💔",
-    text:"I know I made mistakes and disappointed you.",
+    text:"I know I made mistakes and disappointed you. I truly regret it and I never want to be the reason behind your sadness.",
     gif:"https://media.giphy.com/media/CGEAJEqcVFptYzXACG/giphy.gif",
     btn:"My Promise 💖"
   },
   3:{
     title:"My Promise 💞",
-    text:"I promise to always choose you and never hurt you again.",
+    text:"I promise to always choose you, do better, communicate more, and make sure you always feel loved and appreciated every single day. I love you so much 😭❤️",
     gif:"https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif",
     btn:"Forgive Me? 🥺"
   }
@@ -128,10 +137,11 @@ function render(){
 
   if(scene <= 3){
     const d = scenes[scene];
+
     s.innerHTML = `
       <h1>${d.title}</h1>
       <p>${d.text}</p>
-      <img src="${d.gif}" />
+      <img src="${d.gif}" width="240" style="border-radius:15px;margin:10px 0" />
       <div>
         ${scene > 1 ? `<button class="white" onclick="back()">Back</button>` : ""}
         <button class="pink" onclick="next()">${d.btn}</button>
@@ -144,14 +154,16 @@ function render(){
       <h1>Can you forgive me? 💗</h1>
       <p>Please give me one more chance 💞</p>
 
-      <img id="gif" style="display:none;width:220px" />
+      <div id="gifContainer">
+        <img id="gif" />
+      </div>
 
       <div style="position:relative;height:80px">
         <button class="pink" onclick="yes()">Yes 💖</button>
         <button class="white" id="noBtn" onclick="no()">No 😢</button>
       </div>
 
-      <div id="noResponse"></div>
+      <div id="noText"></div>
     `;
 
     setTimeout(() => {
@@ -159,58 +171,58 @@ function render(){
 
       if(noBtn){
         noBtn.addEventListener("mouseover", () => {
-          noBtn.style.position = "absolute";
-          noBtn.style.left = Math.random() * 70 + "%";
-          noBtn.style.top = Math.random() * 50 + "%";
+          noBtn.style.position="absolute";
+          noBtn.style.left=Math.random()*70+"%";
+          noBtn.style.top=Math.random()*50+"%";
         });
       }
-
-      if(noGif){
-        document.getElementById("gif").style.display = "block";
-        document.getElementById("gif").src = noGif;
-      }
-
-      if(noMessage){
-        document.getElementById("noResponse").innerHTML =
-          `<p style="color:#ff6fa8;font-weight:bold">${noMessage}</p>`;
-      }
-    }, 50);
+    },0);
   }
 }
 
-function next(){
-  scene++;
-  render();
-}
+function next(){ scene++; render(); }
+function back(){ scene--; render(); }
 
-function back(){
-  scene--;
-  render();
-}
-
-/* YES BUTTON */
+/* YES → NOW FULL RESET OF NO STATE */
 function yes(){
-  document.getElementById("gif").style.display = "block";
-  document.getElementById("gif").src =
-  "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif";
+  const gif = document.getElementById("gif");
+
+  if(gif){
+    gif.style.display = "block";
+    gif.src = "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif";
+  }
 
   document.getElementById("message").innerText =
   "Thank you, my love 💞 I’ll always cherish you.";
 
   const noBtn = document.getElementById("noBtn");
   if(noBtn) noBtn.style.display = "none";
+
+  const noText = document.getElementById("noText");
+  if(noText) noText.innerHTML = "";
+
+  noActive = false;
 }
 
-/* NO BUTTON */
+/* NO */
 function no(){
-  noGif = "https://media.giphy.com/media/OPU6wzx8JrHna/giphy.gif";
-  noMessage = "I understand 😢 I just hope you know I care about you.";
-  render();
+  const gif = document.getElementById("gif");
+  const text = document.getElementById("noText");
+
+  gif.style.display = "block";
+  gif.src = "https://media.giphy.com/media/OPU6wzx8JrHna/giphy.gif";
+
+  text.innerHTML =
+  "<p style='color:#ff6fa8;font-weight:bold;margin-top:10px'>" +
+  "I understand 😢 I just hope you know I care about you and I love you so much 😭🫶" +
+  "</p>";
+
+  noActive = true;
 }
 
-/* floating hearts */
+/* hearts */
 function hearts(){
-  const h = document.getElementById("hearts");
+  const h=document.getElementById("hearts");
   for(let i=0;i<20;i++){
     let d=document.createElement("div");
     d.className="heart";
